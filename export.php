@@ -163,13 +163,15 @@ class Category extends Model
         foreach ($categories as $cat) {
             if (isset($cat->childrens)) {
                 $childrens = unserialize($cat->childrens);
-            }
-        }
+
 
         if (isset($category['parent'])) {
             $category_parent = Category::find($category['parent']);
             if ($category_parent != null) {
-                $url = '/' . $category_parent['alias'] . '/' . $category['alias'] . $url;
+                if ($url == ''){
+                    $url = '/' . $category_parent['alias'] . '/' . $category['alias'] . $url;
+                }
+
             } else {
                 foreach ($childrens as $child) {
                     if ($child['id'] == $category['parent']) {
@@ -179,9 +181,13 @@ class Category extends Model
             }
 
         } else {
-            $url = '/' . $category['alias'] . $url;
-        }
+               if ($url==''){
+                   $url = '/' . $category['alias'] . $url;
+               }
 
+        }
+            }
+        }
 
         return $url;
     }
