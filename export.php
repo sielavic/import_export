@@ -123,29 +123,48 @@ class Category extends Model
 
             if (isset($category->childrens)) {
                 $childrens = unserialize($category->childrens);
-                if (1 < count($childrens)) {
+
                     foreach ($childrens as $key => $ch) {
                         $ch['parent'] = $category->id;
                         $childrens[$key] = $ch;
                     }
 
-                    $children = self::formatCategoriesFirst($childrens, $level + 1);
-                    $formattedCategories = array_merge($formattedCategories, $children);
+
+                $children = self::formatCategoriesFirst($childrens, $level + 1);
+                $formattedCategories = array_merge($formattedCategories, $children);
 
 
-                    foreach ($childrens as $child) {
-                        if (isset($child['childrens'])) {
-                            foreach ($child['childrens'] as $key => $chch) {
-                                $chch['parent'] = $child['id'];
-                                $child['childrens'][$key] = $chch;
-                            }
 
-                            $child = $child['childrens'];
-                            $children = self::formatCategoriesFirst($child, $level + 2);
-                            $formattedCategories = array_merge($formattedCategories, $children);
+
+
+                foreach ($childrens as $child) {
+                    if (isset($child['childrens'])) {
+
+                        foreach ($child['childrens'] as $key => $chch) {
+                            $chch['parent'] = $child['id'];
+                            $child['childrens'][$key] = $chch;
                         }
+
+                        $child = $child['childrens'];
+                        $children_level = self::formatCategoriesFirst($child, $level + 2);
+                       foreach ($children_level as $chch){
+                           if ('/users/list/active'== $chch['url']){
+                               array_splice($formattedCategories, 3, 0, $children_level);
+                            }
+                           if ('/reports/marketing/write-offs'== $chch['url']){
+                               array_splice($formattedCategories, 12, 0, $children_level);
+                           }
+                        }
+
+//                        $formattedCategories = array_merge($formattedCategories, $children_level);
                     }
                 }
+
+
+
+
+
+
             }
 
         }
