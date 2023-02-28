@@ -11,23 +11,25 @@ class Category extends Model
     protected $fillable = array('name', 'alias', 'childrens');
     public $timestamps = false;
 
-
-//    public function parent() {
-//        return $this->hasMany('\Models\Category');
-//    }
-
-
+    
+    
     public function importDb()
     {
         $data_import = json_decode(file_get_contents("categories.json"), true);
+        $i = 18;
 
-        foreach ($data_import as $category) {
-            $c = new Category;
-            $c->name = $category['name'];
-            $c->alias = $category['alias'];
-            $c->childrens = serialize($category['childrens']);
-            $c->save();
+        $categories = Category::all();
+        if ($categories->isEmpty()){
+            foreach ($data_import as $category) {
+                $c = new Category;
+                $c->id = $i++;
+                $c->name = $category['name'];
+                $c->alias = $category['alias'];
+                $c->childrens = serialize($category['childrens']);
+                $c->save();
+            }
         }
+
 
     }
 
@@ -128,15 +130,10 @@ class Category extends Model
                         $ch['parent'] = $category->id;
                         $childrens[$key] = $ch;
                     }
-
-
+                    
                 $children = self::formatCategoriesFirst($childrens, $level + 1);
                 $formattedCategories = array_merge($formattedCategories, $children);
-
-
-
-
-
+                
                 foreach ($childrens as $child) {
                     if (isset($child['childrens'])) {
 
@@ -147,24 +144,16 @@ class Category extends Model
 
                         $child = $child['childrens'];
                         $children_level = self::formatCategoriesFirst($child, $level + 2);
-                       foreach ($children_level as $chch){
-                           if ('/users/list/active'== $chch['url']){
+                       foreach ($children_level as $chchch){
+                           if ('/users/list/active'== $chchch['url']){
                                array_splice($formattedCategories, 3, 0, $children_level);
                             }
-                           if ('/reports/marketing/write-offs'== $chch['url']){
+                           if ('/reports/marketing/write-offs'== $chchch['url']){
                                array_splice($formattedCategories, 12, 0, $children_level);
                            }
                         }
-
-//                        $formattedCategories = array_merge($formattedCategories, $children_level);
                     }
                 }
-
-
-
-
-
-
             }
 
         }
@@ -184,14 +173,15 @@ class Category extends Model
                 $childrens = unserialize($cat->childrens);
 
 
-        if (isset($category['parent'])) {
+        if (isset($category['parent']) ) {
             $category_parent = Category::find($category['parent']);
             if ($category_parent != null) {
                 if ($url == ''){
                     $url = '/' . $category_parent['alias'] . '/' . $category['alias'] . $url;
                 }
 
-            } else {
+            }
+            else {
                 foreach ($childrens as $child) {
                     if ($child['id'] == $category['parent']) {
                         $url = '/' . $cat['alias'] . '/' . $child['alias'] . $url . '/' . $category['alias'] . $url;
