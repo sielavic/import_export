@@ -8,11 +8,6 @@ $dt = new Database();
 
 
 
-//if(count($_POST) > 0) {
-//    echo Categories::import_db();
-//}
-
-
 if(count($_POST) > 0) {
     $listing = trim($_POST['listing']);
     if($listing == 1) {
